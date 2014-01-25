@@ -11,6 +11,13 @@
 #include <time.h>
 #endif
 
+void resetall() {
+	setrgb(COLOR_RESET, COLOR_RESET);
+	clrscr();
+	gotoxy(0, 0);
+	showcursor(true);
+}
+
 #ifdef OS_Windows
 WORD COLOR_DEFAULT = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE | FOREGROUND_INTENSITY;
 HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -67,12 +74,49 @@ void clrscr() {
 #endif
 }
 
+void clearx(int y, int offset) {
+	int start = 0, end = getwidth();
+	if(offset < 0) {
+		// from 0 to WIDTH-ABS(OFFSET)
+		start = 0;
+		end = getwidth() + offset;
+	} else if(offset > 0) {
+		// from OFFSET to WIDTH
+		start = offset;
+		end = getwidth();
+	}
+
+	for(int x = start; x <= end; x++) {
+		gotoxy(x, y);
+		printf(" ");
+	}
+}
+
+void cleary(int x, int offset) {
+	int start = 0, end = getheight();
+	if(offset < 0) {
+		// from 0 to HEIGHT-ABS(OFFSET)
+		start = 0;
+		end = getheight() + offset;
+	} else if(offset > 0) {
+		// from OFFSET to HEIGHT
+		start = offset;
+		end = getheight();
+	}
+
+	for(int y = start; y <= end; y++) {
+		gotoxy(x, y);
+		printf(" ");
+	}
+}
+
 void pause(int time) {
 #ifdef OS_Windows
 	Sleep(time);
 #else
 	clock_t goal = time + clock();
-	while (goal > clock());
+	int i = 0;
+	while (goal > clock()) { i++; };
 #endif
 }
 
@@ -83,7 +127,7 @@ void gotoxy(int x, int y) {
 	point.Y = y;
 	SetConsoleCursorPosition(hConsole, point);
 #else
-	printf("\033[%d;%dH", y, x);
+	printf("\033[%d;%dH", y + 1, x + 1);
 #endif
 }
 
@@ -196,7 +240,7 @@ int waitkey(const char* prompt) {
 
 	/* Get a single key RELEASE */
 	do ReadConsoleInput(hstdin, &inrec, 1, &count);
-	while ((inrec.EventType != KEY_EVENT) || inrec.Event.KeyEvent.bKeyDown);
+	while ((inrec.EventType != KEY_EVENT) || !inrec.Event.KeyEvent.bKeyDown);
 
 	/* Restore the original console mode */
 	SetConsoleMode(hstdin, mode);
