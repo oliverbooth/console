@@ -12,12 +12,14 @@
 #define COLOR_RESET  -1
 #define COLOR_BLACK   0
 #ifdef OS_Windows
+// Windows is difficult. Colors are different
 #define COLOR_AQUA    3
 #define COLOR_BLUE    1
 #define COLOR_CYAN    3
 #define COLOR_RED     4
 #define COLOR_YELLOW  6
 #else
+// Proper ANSI colors :)
 #define COLOR_AQUA    6
 #define COLOR_BLUE    4
 #define COLOR_CYAN    6
